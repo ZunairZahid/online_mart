@@ -40,7 +40,7 @@ async def lifespan(app: FastAPI)-> AsyncGenerator[None, None]:
     yield
 
 
-app = FastAPI(lifespan=lifespan, title="Hello World API with DB", 
+app = FastAPI(lifespan=lifespan, title="Order Service API with DB", 
     version="0.0.1",
     servers=[
         {
@@ -55,7 +55,7 @@ app = FastAPI(lifespan=lifespan, title="Hello World API with DB",
 
 @app.get("/")
 def read_root():
-    return {"App": "Service 2"}
+    return {"App": "Welcome to Order Service"}
 
 # Kafka Producer as a dependency
 async def get_kafka_producer():

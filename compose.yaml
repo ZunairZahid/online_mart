@@ -1,40 +1,100 @@
-version: '3.8'
+version: '3.9'
 name: mart
 services:
-  userservice-api:
+  1-userservice-api:
     build:
       context: ./userservice
       dockerfile: Dockerfile.dev
     volumes:
       - ./userservice:/code  # Sync local development directory with the container
     depends_on:
-        - postgres_db
+        - pg_users_db
         - broker
     ports:
       - "8000:8000"  # Expose container port 8000 to host port 8000  
-  microservice-api2:
+  2-products-api:
     build:
-      context: ./microservice_02
+      context: ./productservice
       dockerfile: Dockerfile.dev
     volumes:
-      - ./microservice_02:/code  # Sync local development directory with the container
+      - ./productservice:/code  # Sync local development directory with the container
     depends_on:
-        - postgres_db
+        - pg_products_db
         - broker
     ports:
       - "8002:8000"  # Expose container port 8000 to host port 8000  
-  postgres_db:
-    image: postgres:latest  # Use the official PostgreSQL image
-    restart: always
-    container_name: PostgresCont
-    environment:
-        - POSTGRES_USER=ziakhan
-        - POSTGRES_PASSWORD=my_password
-        - POSTGRES_DB=mydatabase
-    ports:
-        - '5433:5432'
+  3-order-api:
+    build:
+      context: ./orderservice
+      dockerfile: Dockerfile.dev
     volumes:
-        - postgres_db:/var/lib/postgresql/data
+      - ./orderservice:/code  # Sync local development directory with the container
+    depends_on:
+        - pg_orders_db
+        - broker
+    ports:
+      - "8003:8000"  # Expose container port 8000 to host port 8000
+  4-inventory-api:
+    build:
+      context: ./inventoryservice
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./inventoryservice:/code  # Sync local development directory with the container
+    depends_on:
+        - pg_inventory_db
+        - broker
+    ports:
+      - "8004:8000"  # Expose container port 8000 to host port 8000  
+  pg_users_db:
+    image: postgres:latest
+    restart: always
+    container_name: user_db
+    environment:
+      - POSTGRES_USER=ziakhan
+      - POSTGRES_PASSWORD=my_password
+      - POSTGRES_DB=user_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - pg_users_db:/var/lib/postgresql/data
+  
+  pg_products_db:
+    image: postgres:latest
+    restart: always
+    container_name: products_db
+    environment:
+      - POSTGRES_USER=product
+      - POSTGRES_PASSWORD=my_password
+      - POSTGRES_DB=products_db
+    ports:
+      - '5433:5432'
+    volumes:
+      - pg_products_db:/var/lib/postgresql/data
+  pg_orders_db:
+    image: postgres:latest
+    restart: always
+    container_name: orders_db
+    environment:
+      - POSTGRES_USER=orders
+      - POSTGRES_PASSWORD=my_password
+      - POSTGRES_DB=orders_db
+    ports:
+      - '5434:5432'
+    volumes:
+      - pg_orders_db:/var/lib/postgresql/data
+  pg_inventory_db:
+    image: postgres:latest
+    restart: always
+    container_name: inventory_db
+    environment:
+      - POSTGRES_USER=inventory
+      - POSTGRES_PASSWORD=my_password
+      - POSTGRES_DB=inventory_db
+    ports:
+      - '5435:5432'
+    volumes:
+      - pg_inventory_db:/var/lib/postgresql/data
+
   broker:
     image: apache/kafka:3.7.0
     hostname: broker
@@ -71,7 +131,13 @@ services:
     depends_on:
       - broker
 volumes:
-  postgres_db:
+  pg_users_db:
+    driver: local
+  pg_products_db:
+    driver: local
+  pg_orders_db:
+    driver: local
+  pg_inventory_db:
     driver: local
 networks:
   default:

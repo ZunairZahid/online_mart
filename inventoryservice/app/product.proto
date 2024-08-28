@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+
+message Product {
+    int32 product_id = 1;
+    string description = 2;
+    string unit_of_measure = 3;
+    float price = 4;
+    google.protobuf.Timestamp created_at = 5;
+    google.protobuf.Timestamp updated_at = 6;
+}
